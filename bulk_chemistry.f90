@@ -235,7 +235,7 @@ implicit none
   real a0, a1, a2
 
   ! general
-  character(len=25) inputchemfile
+  character(len=80) inputchemfile
   character(len=80) formatstring
   character(len=40) filename
   integer j
@@ -626,7 +626,7 @@ implicit none
   call system(formatstring)
   write(formatstring,'(a,a)')kopie//'namoptions '//trim(outdir)
   call system(formatstring)
-  write(formatstring,'(a,a)')kopie//inputchemfile//trim(outdir)
+  write(formatstring,'(a,a)')kopie//trim(inputchemfile)//' '//trim(outdir)
   call system(formatstring)
   if (lcomplex) then
     write(formatstring,'(a,a)')kopie//'chemicals.txt '//trim(outdir)
@@ -940,6 +940,7 @@ implicit none
   do t=1, runtime
     tt=tt+1
     sec = t * dtime    !number of seconds from start
+    write (*,*) 'sec=',sec
     printhour=t * dtime/3600.
     thour= hour+t*dtime/3600.
 
@@ -989,6 +990,7 @@ implicit none
 
       iter        = 0
       do while(.true.)
+        ! careful with this solver; no max check on iter so can end up in infinite loop
         iter      = iter + 1
         L0        = L
         fx        = Rib - zsl / L * (log(zsl / z0h) - psih(zsl / L) + psih(z0h / L)) / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) ** 2.
@@ -1001,8 +1003,10 @@ implicit none
 
         if(abs((L - L0)/L) < 1e-4) exit
         if(abs((L - L0)) < 1e-3) exit
-      enddo
-
+        !avoid numeric instability where L bounces bewtween +/-1.e6
+        if(abs(L) .EQ. 1.e6) exit
+     enddo
+      write (*,*) 'L=',L
       Constm =  kappa ** 2. / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) ** 2.
       Cs     =  kappa ** 2. / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) / (log(zsl / z0h) - psih(zsl / L) + psih(z0h / L))
 
