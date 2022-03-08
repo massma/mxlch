@@ -940,7 +940,6 @@ implicit none
   do t=1, runtime
     tt=tt+1
     sec = t * dtime    !number of seconds from start
-    write (*,*) 'sec=',sec
     printhour=t * dtime/3600.
     thour= hour+t*dtime/3600.
 
@@ -1006,7 +1005,6 @@ implicit none
         !avoid numeric instability where L bounces bewtween +/-1.e6
         if(abs(L) .EQ. 1.e6) exit
      enddo
-      write (*,*) 'L=',L
       Constm =  kappa ** 2. / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) ** 2.
       Cs     =  kappa ** 2. / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) / (log(zsl / z0h) - psih(zsl / L) + psih(z0h / L))
 
