@@ -989,7 +989,6 @@ implicit none
 
       iter        = 0
       do while(.true.)
-        ! careful with this solver; no max check on iter so can end up in infinite loop
         iter      = iter + 1
         L0        = L
         fx        = Rib - zsl / L * (log(zsl / z0h) - psih(zsl / L) + psih(z0h / L)) / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) ** 2.
@@ -1002,8 +1001,10 @@ implicit none
 
         if(abs((L - L0)/L) < 1e-4) exit
         if(abs((L - L0)) < 1e-3) exit
-        !avoid numeric instability where L bounces bewtween +/-1.e6
-        if(abs(L) .EQ. 1.e6) exit
+        if(iter > 1e6) then
+           write (*,*) 'WARNING: L solver exceeded 1e6 iterations, exiting'
+           exit
+        endif
      enddo
       Constm =  kappa ** 2. / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) ** 2.
       Cs     =  kappa ** 2. / (log(zsl / z0m) - psim(zsl / L) + psim(z0m / L)) / (log(zsl / z0h) - psih(zsl / L) + psih(z0h / L))
